@@ -11,6 +11,19 @@ router.get('/', async(req, res) => {
     });
 });
 
+router.get('/:id', async(req, res) => {
+    const { id } = req.params;
+    let candy = await pool.query('Select * from candies where id = ?', [id]);
+    res.json({
+        status: 200,
+        message: "Se ha obtenido correctamente",
+        candy: candy
+    });
+});
+
+
+
+
 router.post('/create', async(req, res) => {
     const { name, price, expiration, isSalad } = req.body;
 
@@ -25,6 +38,7 @@ router.post('/create', async(req, res) => {
 
     const date_registered = y + '-' + m + '-' + d;
     const date_created = y + '-' + m + '-' + d;
+    const status = 1;
     const candy = {
 
         name,
@@ -33,7 +47,7 @@ router.post('/create', async(req, res) => {
         isSalad,
         date_registered,
         date_created,
-        status = 1
+        status
     };
 
     await pool.query('INSERT INTO candies set ?', [candy]);
@@ -44,6 +58,33 @@ router.post('/create', async(req, res) => {
     });
 });
 
+
+router.post('/update/:id', async(req, res) => {
+    const { id } = req.params;
+    const { name, price, expiration, isSalad } = req.body;
+
+    const candy = { name, price, expiration, isSalad };
+
+    await pool.query('UPDATE candies set ? where id = ?', [candy, id]);
+
+    res.json({
+        status: 200,
+        message: "Se ha actualizado correctamente",
+        candy: candy
+    });
+});
+
+
+router.post('/delete/:id', async(req, res) => {
+    const { id } = req.params;
+
+    await pool.query('UPDATE candies set status = 0 where id = ?', [id]);
+    res.json({
+        status: 200,
+        message: "Se ha eliminado correctamente"
+    });
+
+})
 
 
 module.exports = router;
